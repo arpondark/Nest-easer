@@ -5,6 +5,7 @@ import Link from 'next/link';
 import Image from 'next/image';
 import { useForm } from 'react-hook-form';
 import { FaEye, FaEyeSlash, FaGoogle, FaFacebook } from 'react-icons/fa';
+import axios from 'axios';
 
 type SignupFormValues = {
   firstName: string;
@@ -20,18 +21,28 @@ type SignupFormValues = {
 const SignupPage = () => {
   const [showPassword, setShowPassword] = useState(false);
   const [showConfirmPassword, setShowConfirmPassword] = useState(false);
-  
+  const [signupError, setSignupError] = useState('');
+  const [signupSuccess, setSignupSuccess] = useState('');
+
   const { register, handleSubmit, watch, formState: { errors } } = useForm<SignupFormValues>({
     defaultValues: {
       userType: 'general'
     }
   });
-  
+
   const password = watch('password');
-  
-  const onSubmit = (data: SignupFormValues) => {
-    console.log('Form data:', data);
-    // Handle signup logic here
+
+  const onSubmit = async (data: SignupFormValues) => {
+    try {
+      const response = await axios.post('/register', data);
+      setSignupSuccess('Registration successful!');
+      setSignupError('');
+      console.log('Signup data:', response.data);
+    } catch (error) {
+      setSignupError('Registration failed. Please try again.');
+      setSignupSuccess('');
+      console.error('Signup error:', error);
+    }
   };
 
   return (
@@ -47,7 +58,7 @@ const SignupPage = () => {
               Join NestEase to find properties, book services, and swap items
             </p>
           </div>
-          
+
           <form onSubmit={handleSubmit(onSubmit)} className="space-y-6">
             {/* Name Fields */}
             <div className="grid grid-cols-2 gap-4">
@@ -80,7 +91,7 @@ const SignupPage = () => {
                 )}
               </div>
             </div>
-            
+
             {/* Email */}
             <div>
               <label className="block text-sm font-medium text-gray-700 dark:text-gray-300 mb-1">
@@ -102,7 +113,7 @@ const SignupPage = () => {
                 <p className="mt-1 text-sm text-red-600">{errors.email.message}</p>
               )}
             </div>
-            
+
             {/* Phone Number */}
             <div>
               <label className="block text-sm font-medium text-gray-700 dark:text-gray-300 mb-1">
@@ -124,7 +135,7 @@ const SignupPage = () => {
                 <p className="mt-1 text-sm text-red-600">{errors.phoneNumber.message}</p>
               )}
             </div>
-            
+
             {/* Password */}
             <div>
               <label className="block text-sm font-medium text-gray-700 dark:text-gray-300 mb-1">
@@ -155,7 +166,7 @@ const SignupPage = () => {
                 <p className="mt-1 text-sm text-red-600">{errors.password.message}</p>
               )}
             </div>
-            
+
             {/* Confirm Password */}
             <div>
               <label className="block text-sm font-medium text-gray-700 dark:text-gray-300 mb-1">
@@ -183,7 +194,7 @@ const SignupPage = () => {
                 <p className="mt-1 text-sm text-red-600">{errors.confirmPassword.message}</p>
               )}
             </div>
-            
+
             {/* User Type */}
             <div>
               <label className="block text-sm font-medium text-gray-700 dark:text-gray-300 mb-1">
@@ -199,7 +210,7 @@ const SignupPage = () => {
                 <option value="service_provider">Service Provider</option>
               </select>
             </div>
-            
+
             {/* Terms and Conditions */}
             <div className="flex items-start">
               <input
@@ -215,7 +226,7 @@ const SignupPage = () => {
             {errors.agreeTerms && (
               <p className="text-sm text-red-600">{errors.agreeTerms.message}</p>
             )}
-            
+
             {/* Submit Button */}
             <button
               type="submit"
@@ -224,7 +235,17 @@ const SignupPage = () => {
               Create Account
             </button>
           </form>
-          
+
+          {/* Error Message */}
+          {signupError && (
+            <p className="mt-4 text-sm text-red-600 text-center">{signupError}</p>
+          )}
+
+          {/* Success Message */}
+          {signupSuccess && (
+            <p className="mt-4 text-sm text-green-600 text-center">{signupSuccess}</p>
+          )}
+
           {/* Social Signup Options */}
           <div className="mt-6">
             <div className="relative">
@@ -237,7 +258,7 @@ const SignupPage = () => {
                 </span>
               </div>
             </div>
-            
+
             <div className="mt-6 grid grid-cols-2 gap-3">
               <button
                 type="button"
@@ -255,7 +276,7 @@ const SignupPage = () => {
               </button>
             </div>
           </div>
-          
+
           {/* Login Link */}
           <div className="text-center mt-8">
             <p className="text-sm text-gray-600 dark:text-gray-400">
@@ -267,7 +288,7 @@ const SignupPage = () => {
           </div>
         </div>
       </div>
-      
+
       {/* Right Side - Image */}
       <div className="hidden lg:block lg:w-1/2 bg-gradient-to-r from-blue-600 to-indigo-700">
         <div className="h-full w-full relative flex items-center justify-center">
@@ -305,4 +326,4 @@ const SignupPage = () => {
   );
 };
 
-export default SignupPage; 
+export default SignupPage;

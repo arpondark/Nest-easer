@@ -5,6 +5,7 @@ import Link from 'next/link';
 import Image from 'next/image';
 import { useForm } from 'react-hook-form';
 import { FaEye, FaEyeSlash, FaGoogle, FaFacebook } from 'react-icons/fa';
+import axios from 'axios';
 
 type LoginFormValues = {
   email: string;
@@ -14,16 +15,26 @@ type LoginFormValues = {
 
 const LoginPage = () => {
   const [showPassword, setShowPassword] = useState(false);
-  
+  const [loginError, setLoginError] = useState('');
+  const [loginSuccess, setLoginSuccess] = useState('');
+
   const { register, handleSubmit, formState: { errors } } = useForm<LoginFormValues>({
     defaultValues: {
       rememberMe: false
     }
   });
-  
-  const onSubmit = (data: LoginFormValues) => {
-    console.log('Login data:', data);
-    // Handle login logic here
+
+  const onSubmit = async (data: LoginFormValues) => {
+    try {
+      const response = await axios.post('/login', data);
+      setLoginSuccess('Login successful!');
+      setLoginError('');
+      console.log('Login data:', response.data);
+    } catch (error) {
+      setLoginError('Invalid email or password');
+      setLoginSuccess('');
+      console.error('Login error:', error);
+    }
   };
 
   return (
@@ -158,6 +169,16 @@ const LoginPage = () => {
               Sign In
             </button>
           </form>
+
+          {/* Error Message */}
+          {loginError && (
+            <p className="mt-4 text-sm text-red-600 text-center">{loginError}</p>
+          )}
+
+          {/* Success Message */}
+          {loginSuccess && (
+            <p className="mt-4 text-sm text-green-600 text-center">{loginSuccess}</p>
+          )}
           
           {/* Social Login Options */}
           <div className="mt-6">
@@ -205,4 +226,4 @@ const LoginPage = () => {
   );
 };
 
-export default LoginPage; 
+export default LoginPage;
